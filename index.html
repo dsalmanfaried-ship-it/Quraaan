@@ -26,13 +26,19 @@ h1{margin:6px 0 0;font-size:30px;color:var(--acc)}header p{margin:0 0 10px;color
 .ic{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;width:44px;height:44px;font-size:20px;cursor:pointer}
 #eng{font-size:12px;color:var(--mute);margin:-6px 0 8px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:12px 0}
-.tabs{display:flex;gap:8px}.tabs button{flex:1;padding:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;font:600 15px Cairo,sans-serif;cursor:pointer}
+.tabs{display:flex;gap:6px}.tabs button{flex:1;padding:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;font:600 15px Cairo,sans-serif;cursor:pointer}
 .tabs button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
 #sel{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px}#sel label{display:flex;flex-direction:column;font-size:13px;color:var(--mute)}
 select,textarea,input[type=text],input[type=password]{font:16px Cairo,sans-serif;padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);width:100%}
 #opts{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:14px}#opts label{display:flex;align-items:center;gap:6px}
 [data-mode=auto] #sel,[data-mode=ask] #sel,[data-mode=ask] #opts,[data-mode=ask] #mushc,[data-mode=ask] .mic,[data-mode=ask] #res,[data-mode=ask] #ai,[data-mode=ask] #where{display:none!important}
-[data-mode=check] #where{display:none!important}[data-mode=auto] #chatc,[data-mode=check] #chatc{display:none}
+[data-mode=coach] #sel,[data-mode=coach] #opts,[data-mode=coach] #mushc,[data-mode=coach] .mic,[data-mode=coach] #res,[data-mode=coach] #ai,[data-mode=coach] #where{display:none!important}
+[data-mode=check] #where{display:none!important}[data-mode=auto] #chatc,[data-mode=check] #chatc,[data-mode=coach] #chatc{display:none}
+#coachc{display:none}[data-mode=coach] #coachc{display:block}
+.tabs button{font-size:14px;padding:10px 4px}
+.kp{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}.kp div{flex:1;min-width:90px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:8px;text-align:center}.kp b{display:block;font-size:24px;color:var(--acc)}
+.bars{display:flex;align-items:flex-end;gap:5px;height:70px;margin:6px 0 12px}.bars i{flex:1;background:var(--acc);border-radius:4px 4px 0 0;min-height:3px}.bars i.lo{background:var(--bad)}
+.wk{display:flex;justify-content:space-between;align-items:center;gap:8px;border-top:1px solid var(--line);padding:6px 0}.wk .q{font-size:22px}.wk button{margin:0;padding:6px 12px}
 .where{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .mush{font-family:"Amiri Quran","Scheherazade New","Noto Naskh Arabic",serif;font-size:30px;line-height:2.4;text-align:justify}
 .bsm{font-family:"Amiri Quran","Scheherazade New",serif;font-size:26px;text-align:center;color:var(--mute);margin-bottom:4px}
@@ -74,7 +80,7 @@ dialog label{display:block;margin:10px 0 2px;font-size:14px;color:var(--mute)}di
 <body data-mode="auto">
 <div class="app">
 <header><div class="top"><div><h1>تِلاوة</h1><p>اقرأ بصوتك وراجع تلاوتك كلمةً بكلمة</p></div><button class="ic" id="cfgb" aria-label="الإعدادات">⚙️</button></div><div id="eng"></div></header>
-<nav class="tabs"><button id="t0" class="on">تلقائي</button><button id="t1">تسميع</button><button id="t3">المساعد</button></nav>
+<nav class="tabs"><button id="t0" class="on">تلقائي</button><button id="t1">تسميع</button><button id="t3">المساعد</button><button id="t4">المعلّم</button></nav>
 <section class="card" id="sel">
 <label>السورة<select id="ss"></select></label><label>من آية<select id="sf"></select></label><label>إلى آية<select id="st"></select></label>
 </section>
@@ -85,6 +91,7 @@ dialog label{display:block;margin:10px 0 2px;font-size:14px;color:var(--mute)}di
 <details><summary>أو اكتب ما قرأته</summary><textarea id="typed" placeholder="اكتب هنا ما قرأته"></textarea><button class="btn" id="go">حلّل</button></details></section>
 <section class="card" id="res" hidden></section>
 <section class="card" id="ai" hidden><button class="btn" id="askai" style="margin:0" hidden>✨ تحليل وتوجيه من الذكاء الاصطناعي</button><div id="aitxt"></div><button class="btn" id="tjai" hidden>🎧 تحليل التجويد من الصوت (Gemini)</button><small id="tjnote" style="display:block;color:var(--mute)" hidden>يُرسَل تسجيلك الصوتي إلى Google للتحليل، والنتيجة تقريبية وليست حكمًا نهائيًا.</small><div id="tjtxt" style="white-space:pre-wrap;margin-top:8px"></div></section>
+<section class="card" id="coachc"><div id="cstats"></div><button class="btn" id="cplan">✨ خطة مراجعة شخصية من المعلّم</button> <button class="btn sec" id="cclear">مسح السجل</button><div id="coachtxt" style="white-space:pre-wrap;margin-top:10px"></div></section>
 <section class="card" id="chatc"><div id="cm"><div class="m a">اسألني عن أي آية: معناها، تفسيرها الميسّر، أحكام التجويد فيها، أو ابحث بجزء من نصها. معي نص المصحف كاملًا وبقرأ منه قبل ما أجاوب.</div></div><div id="crow"><textarea id="cq" placeholder="اكتب سؤالك…"></textarea><button class="btn" id="csend" style="margin:0">إرسال</button></div><small id="cnote" style="color:var(--mute)"></small></section>
 <footer>التحليل مبنيّ على النص الذي يفهمه نظام التعرّف على الكلام، فلا يكشف دقائق التجويد الصوتية؛ وألوان التجويد مولَّدة آليًّا من النص وقد تخطئ في بعض المواضع؛ ولا يغني التطبيق عن معلّم مجاز.<br>نص المصحف: <a href="https://tanzil.net" target="_blank" rel="noopener">مشروع تنزيل (Tanzil)</a> — الرسم العثماني.</footer>
 </div>
@@ -232,6 +239,7 @@ function report(r,S){
   else if(s=="miss"){li+=`<li class="er">نسيتَ <span class="q">${e.w}</span></li>`+tjn(i);lines.push(`نسي «${p}»${ex}`)}
   else if(s=="near"){li+=`<li>نطق غير واضح: <span class="q">${e.w}</span> (سُمعت «${esc(r.hr[i])}»)</li>`+tjn(i);lines.push(`نطق قريب غير واضح: «${p}» سُمعت «${r.hr[i]}»${ex}`)}});
  r.ex.forEach(x=>{li+=`<li class="er">كلمة زائدة: «${esc(x.w)}»</li>`;lines.push(`زاد «${x.w}»`)});
+ recordSession(r,c,pct);
  res.hidden=false;res.innerHTML=`<div class="score"><b>${ar(pct)}٪</b><span>${pct>=90?"ما شاء الله، تلاوة ممتازة":pct>=70?"جيد، راجع الكلمات الملوّنة":"أعد المحاولة بتمهّل"}</span></div><div class="pills"><span class="p1">صحيحة ${ar(c.ok)}</span><span class="p2">قريبة ${ar(c.near)}</span><span class="p3">خاطئة ${ar(c.bad)}</span><span class="p4">منسية ${ar(c.miss)}</span></div><ul>${li||"<li>لا أخطاء 🎉</li>"}</ul>`;
  last={exp:E.filter((e,i)=>r.st[i]!="skip").map(e=>nz(e.w)).join(" "),heard:S.join(" "),lines,ref:`سورة ${N_[+ss.value]} من الآية ${sf.value} إلى ${st.value}`};
  showAI();msg("تم التحليل — اضغط المايك لمحاولة جديدة")}
@@ -263,6 +271,24 @@ function addMsg(c,t){const d=document.createElement("div");d.className="m "+c;d.
 async function sendChat(){const q=$("cq").value.trim();if(!q)return;$("cq").value="";addMsg("u",q);const o=addMsg("a","…");hist.push({r:"user",c:q});
  try{const t=await callLLM(SYS+"\n\n"+buildCtx(q),hist.slice(-8),x=>o.textContent=x);o.textContent=t;hist.push({r:"assistant",c:t})}catch(e){hist.pop();o.textContent="تعذّر الحصول على الرد: "+e.message}}
 
+/* ===== المعلّم: سجل الجلسات وتحليل الأنماط ===== */
+const hist_=()=>{try{return JSON.parse(ls.get("tilawa_hist")||"[]")}catch(e){return[]}};
+function recordSession(r,c,pct){try{const e=[];E.forEach((w,i)=>{const k=r.st[i];if(k=="bad"||k=="miss"||k=="near")e.push({w:nz(w.w),s:+ss.value,a:w.a,r:w.r,k})});
+ const H=hist_();H.push({t:Date.now(),s:+ss.value,f:E.length?E[0].a:0,p:pct,ok:c.ok,nr:c.near,bd:c.bad,ms:c.miss,e:e.slice(0,40)});ls.set("tilawa_hist",JSON.stringify(H.slice(-200)))}catch(x){}}
+function coachStats(){const H=hist_(),W={},R={};H.forEach(h=>h.e.forEach(x=>{if(x.k=="near")return;const k=x.s+":"+x.a+":"+x.w;(W[k]=W[k]||Object.assign({n:0},x)).n++;(x.r||[]).forEach(q=>R[q]=(R[q]||0)+1)}));
+ return{H,W:Object.values(W).sort((a,b)=>b.n-a.n),R:Object.entries(R).sort((a,b)=>b[1]-a[1])}}
+function renderCoach(){const{H,W,R}=coachStats();const box=$("cstats");
+ if(!H.length){box.innerHTML="<p>لسه مفيش جلسات. اقرأ في «تلقائي» أو «تسميع» وهيتسجّل تقدّمك هنا، والمعلّم يحلّل أنماط أخطائك ويقترح لك خطة.</p>";return}
+ const last=H.slice(-10),avg=Math.round(H.reduce((a,h)=>a+h.p,0)/H.length),avgL=Math.round(last.reduce((a,h)=>a+h.p,0)/last.length);
+ box.innerHTML=`<div class="kp"><div><b>${ar(H.length)}</b>جلسة</div><div><b>${ar(avg)}٪</b>المتوسط</div><div><b>${ar(avgL)}٪</b>آخر ${ar(last.length)}</div></div>
+ <div>تطوّر آخر الجلسات</div><div class="bars">${last.map(h=>`<i class="${h.p<70?"lo":""}" style="height:${Math.max(6,(h.p-50)*2)}%" title="${h.p}٪"></i>`).join("")}</div>
+ <div><b>أكثر الكلمات تعثّرًا</b></div>${W.length?W.slice(0,8).map(x=>`<div class="wk"><span><span class="q">${Q[x.s][x.a-1].split(" ").find(t=>nz(t)==x.w)||x.w}</span> — ${N_[x.s]} : ${ar(x.a)} <small>(${ar(x.n)}×)</small></span><button class="btn sec" data-drill="${x.s}:${x.a}">تدرّب</button></div>`).join(""):"<p>لا أخطاء متكررة 🎉</p>"}
+ ${R.length?`<div style="margin-top:8px"><b>أحكام التجويد المرتبطة بأخطائك</b></div><div class="pills">${R.slice(0,5).map(([k,n])=>`<span class="p2">${TJ[k][0]} ×${ar(n)}</span>`).join("")}</div>`:""}`}
+$("cstats").onclick=e=>{const b=e.target.closest("button[data-drill]");if(!b)return;const[s,a]=b.dataset.drill.split(":").map(Number);setMode("check");ss.value=s;fill();sf.value=a;st.value=a;reset();msg("تدرّب على هذه الآية: اضغط المايك وكرّرها")};
+$("cclear").onclick=()=>{if(confirm("مسح كل سجل الجلسات؟")){ls.set("tilawa_hist","[]");renderCoach();$("coachtxt").textContent=""}};
+$("cplan").onclick=async()=>{const{H,W,R}=coachStats(),o=$("coachtxt");if(!H.length){o.textContent="سجّل بعض الجلسات أولًا.";return}
+ const last=H.slice(-10),d=`عدد الجلسات: ${H.length}، متوسط آخر ${last.length}: ${Math.round(last.reduce((a,h)=>a+h.p,0)/last.length)}٪، الدرجات الأخيرة: ${last.map(h=>h.p).join("، ")}\nأكثر الكلمات تعثّرًا:\n${W.slice(0,10).map(x=>`- «${x.w}» (${N_[x.s]}: ${x.a}) ${x.n} مرات، نوع الخطأ ${x.k=="miss"?"نسيان":"إبدال"}${x.r&&x.r.length?"، حكم: "+x.r.map(q=>TJ[q][0]).join("/"):""} — نص الآية: ${Q[x.s][x.a-1]}`).join("\n")||"لا شيء"}\nأحكام تتكرر مع الأخطاء: ${R.slice(0,5).map(([k,n])=>TJ[k][0]+" ×"+n).join("، ")||"لا شيء"}`;
+ o.textContent="…";try{o.textContent=await callLLM(SYS,[{r:"user",c:`أنت معلّم قرآن يتابع تقدّم طالب. هذه بيانات جلساته:\n${d}\nاكتب: (١) تشخيصًا مختصرًا لنمط أخطائه وهل هو يتحسّن، (٢) خطة مراجعة لسبعة أيام مختصرة (كل يوم: ماذا يقرأ وكم مرة وماذا يركّز عليه)، (٣) تمرينين عمليين على أصعب حكم تجويدي عنده، (٤) جملة تشجيع. التحليل مبني على نص مفهوم بالتعرّف على الكلام فلا تجزم. اختصر.`}],t=>o.textContent=t)}catch(e){o.textContent="تعذّر إنشاء الخطة: "+e.message}};
 /* ===== التسجيل: أذونات + محرّكات ===== */
 const IN_CLAUDE=!!(window.claude&&claude.use);
 let wl=null;async function wakeOn(){try{if(navigator.wakeLock&&!wl)wl=await navigator.wakeLock.request("screen")}catch(e){}}function wakeOff(){try{wl&&wl.release()}catch(e){}wl=null}
@@ -356,9 +382,9 @@ res.onclick=e=>{const b=e.target.closest("button[data-s]");if(!b)return;lockOn(+
 $("unlock").onclick=()=>{locked=false;where.hidden=true;mushc.hidden=true;E=[];curIdx=-1;if(spoken.trim()){live()}};
 
 /* ===== واجهة ===== */
-function setMode(m){if(running)stopAll();mode=m;document.body.dataset.mode=m;["auto","check","ask"].forEach((x,i)=>$(["t0","t1","t3"][i]).classList.toggle("on",x==m));
- if(m!="ask"){reset();msg(m=="auto"?"اضغط على المايك وابدأ القراءة — هتعرّف على الآية تلقائيًا":"اضغط على المايك وابدأ القراءة")}else refreshNote()}
-$("t0").onclick=()=>setMode("auto");$("t1").onclick=()=>setMode("check");$("t3").onclick=()=>setMode("ask");
+function setMode(m){if(running)stopAll();mode=m;document.body.dataset.mode=m;["auto","check","ask","coach"].forEach((x,i)=>$(["t0","t1","t3","t4"][i]).classList.toggle("on",x==m));
+ if(m=="auto"||m=="check"){reset();msg(m=="auto"?"اضغط على المايك وابدأ القراءة — هتعرّف على الآية تلقائيًا":"اضغط على المايك وابدأ القراءة")}else if(m=="ask")refreshNote();else renderCoach()}
+$("t0").onclick=()=>setMode("auto");$("t1").onclick=()=>setMode("check");$("t3").onclick=()=>setMode("ask");$("t4").onclick=()=>setMode("coach");
 ss.onchange=()=>{fill();sf.value=1;reset()};
 sf.onchange=()=>{if(+st.value<+sf.value)st.value=sf.value;if(+st.value>+sf.value+19)st.value=+sf.value+19;reset()};
 st.onchange=()=>{if(+st.value<+sf.value)sf.value=st.value;if(+st.value>+sf.value+19)sf.value=+st.value-19;reset()};
