@@ -42,12 +42,12 @@ select,textarea,input[type=text],input[type=password]{font:16px Cairo,sans-serif
 .where{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .mush{font-family:"Amiri Quran","Scheherazade New","Noto Naskh Arabic",serif;font-size:30px;line-height:2.4;text-align:justify}
 .bsm{font-family:"Amiri Quran","Scheherazade New",serif;font-size:26px;text-align:center;color:var(--mute);margin-bottom:4px}
-.w{padding:2px 3px;border-radius:8px;transition:background .2s}
+.w{display:inline-block;padding:2px 3px;border-radius:8px;transition:background .25s,color .25s,box-shadow .25s}
 .w.ok{background:var(--okbg);color:var(--ok)}.tj-on .w.ok{color:inherit}
 .w.near{background:var(--warnbg);color:var(--warn)}
 .w.bad{background:var(--badbg);color:var(--bad);font-weight:700;box-shadow:inset 0 -3px 0 var(--bad)}
 .w.miss{background:var(--badbg);color:var(--bad);text-decoration:underline wavy var(--bad);text-underline-offset:8px}
-.w.skip{opacity:.5}.w.cur{background:var(--cur)}
+.w.skip{opacity:.5}.w.cur{background:var(--cur);animation:cur 1.2s ease-in-out infinite}.w.chk{background:var(--warnbg);box-shadow:inset 0 -2px 0 var(--warn)}
 .w.bad .tj,.w.near .tj,.w.miss .tj{color:inherit}
 .hide .w.pend,.hide .w.cur{color:transparent;text-shadow:0 0 10px var(--ink)}.hide .w.pend .tj,.hide .w.cur .tj{color:transparent}
 .tj-on .c-gh{color:var(--c-gh)}.tj-on .c-id{color:var(--c-id)}.tj-on .c-in{color:var(--c-in)}.tj-on .c-ik{color:var(--c-ik)}.tj-on .c-iq{color:var(--c-iq)}.tj-on .c-ql{color:var(--c-ql)}.tj-on .c-md{color:var(--c-md)}.tj-on .c-ml{color:var(--c-ml)}.tj-on .c-sl{color:var(--c-sl)}
@@ -75,6 +75,18 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 dialog label{display:block;margin:10px 0 2px;font-size:14px;color:var(--mute)}dialog small{color:var(--mute);display:block;margin-top:4px}
 .gate{position:fixed;inset:0;background:var(--bg);z-index:50;display:flex;align-items:center;justify-content:center;padding:20px}
 .gate>div{max-width:420px;text-align:center}.gate h2{color:var(--acc);margin:0 0 6px}.gate ul{text-align:right}
+
+@keyframes cur{50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 30%,transparent)}}
+@keyframes pop{from{transform:scale(1.18)}to{transform:none}}
+@keyframes shake{20%{transform:translateX(-4px)}60%{transform:translateX(4px)}100%{transform:none}}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.w.ok{animation:pop .35s ease-out}.w.bad{animation:shake .4s}.w.miss{animation:shake .4s}
+.card{animation:rise .25s ease-out}
+#pbar{height:4px;background:var(--line);border-radius:4px;overflow:hidden;margin-bottom:10px}#pbar i{display:block;height:100%;width:0;background:var(--acc);transition:width .35s ease}
+#mic{transition:transform .15s,background .2s}#mic:active{transform:scale(.94)}
+#mic.lv{animation:none;box-shadow:0 0 0 calc(var(--lv,0)*26px) rgba(185,28,28,.22);transition:box-shadow .09s linear}
+.pills span{animation:pop .3s ease-out}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body data-mode="auto">
@@ -86,7 +98,7 @@ dialog label{display:block;margin:10px 0 2px;font-size:14px;color:var(--mute)}di
 </section>
 <section class="card" id="opts"><label><input type="checkbox" id="hide"> وضع الحفظ (إخفاء الكلمات حتى تُقرأ)</label><label><input type="checkbox" id="tjc" checked> ألوان التجويد</label></section>
 <section class="card where" id="where" hidden><span id="wtxt"></span><button class="btn sec" id="unlock" style="margin:0">إعادة التحديد</button></section>
-<section class="card" id="mushc" hidden><div id="bsm" class="bsm" hidden></div><div id="mush" class="mush"></div><div id="legend"></div></section>
+<section class="card" id="mushc" hidden><div id="pbar"><i></i></div><div id="bsm" class="bsm" hidden></div><div id="mush" class="mush"></div><div id="legend"></div></section>
 <section class="card mic"><button id="mic" aria-label="تسجيل">🎙️</button><div id="stat" aria-live="polite">اضغط على المايك وابدأ القراءة — هتعرّف على الآية تلقائيًا</div><div id="live" class="live"></div><button class="btn sec" id="boost" hidden>⚡ فعّل النموذج القرآني (أدق + تسجيل صوتي لتحليل التجويد)</button>
 <details><summary>أو اكتب ما قرأته</summary><textarea id="typed" placeholder="اكتب هنا ما قرأته"></textarea><button class="btn" id="go">حلّل</button></details></section>
 <section class="card" id="res" hidden></section>
@@ -131,7 +143,7 @@ function prep(S){const o=[];for(let i=0;i<S.length;){let j=i;while(j<S.length&&L
  if(S[i]=="يا"&&i+1<S.length){o.push("يا"+S[i+1]);i+=2;continue}
  o.push(S[i]);i++}return o}
 function lev(a,b){const m=a.length,n=b.length;let p=Array.from({length:n+1},(_,j)=>j);for(let i=1;i<=m;i++){const c=[i];for(let j=1;j<=n;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]==b[j-1]?0:1));p=c}return p[n]}
-const sim=(a,b)=>{const x=key(a),y=key(b),L=Math.max(x.length,y.length);return L?1-lev(x,y)/L:1};
+const SC=new Map();const sim=(a,b)=>{const k=a+"|"+b;let v=SC.get(k);if(v===undefined){const x=key(a),y=key(b),L=Math.max(x.length,y.length);v=L?1-lev(x,y)/L:1;if(SC.size>200000)SC.clear();SC.set(k,v)}return v};
 
 /* ===== محرّك أحكام التجويد (آلي تقريبي) ===== */
 const TJ={
@@ -177,7 +189,13 @@ N_.forEach((n,i)=>ss.add(new Option(ar(i+1)+". "+n,i)));
 function fill(){const c=Q[+ss.value].length;[sf,st].forEach(el=>{el.innerHTML="";for(let i=1;i<=c;i++)el.add(new Option(ar(i),i))});st.value=Math.min(c,5)}
 function build(){E=[];const s=+ss.value;for(let a=+sf.value;a<=+st.value;a++){Q[s][a-1].split(" ").forEach(w=>{const k=nz(w);if(!k){if(E.length&&E[E.length-1].a==a)E[E.length-1].w+=" "+w;return}E.push({w,k,a})});if(E.length)E[E.length-1].end=a}
  E.forEach((e,i)=>{const nx=i+1<E.length?firstL(E[i+1].w):null,rr=new Set,hh=e.w.split(" ").map((p,pi)=>{if(pi)return esc(p);const t=tjWord(p,nx);t.r.forEach(x=>rr.add(x));return t.h});e.h=hh.join(" ");e.p=esc(e.w);e.r=[...rr]})}
-function render(r){lastR=r;mush.className="mush"+(hide.checked&&!done?" hide":"");mush.innerHTML=E.map((e,i)=>`<span class="w ${r?r.st[i]:"pend"}">${tjc.checked?e.h:e.p}</span>`+(e.end?` <span class="num">﴿${ar(e.end)}﴾</span> `:" ")).join("")}
+let mushSig="",wEls=[];
+function render(r){lastR=r;mush.className="mush"+(hide.checked&&!done?" hide":"");
+ const sig=ss.value+"|"+(E[0]?E[0].a:0)+"|"+E.length+"|"+tjc.checked;
+ if(sig!==mushSig){mushSig=sig;mush.innerHTML=E.map(e=>`<span class="w pend">${tjc.checked?e.h:e.p}</span>`+(e.end?` <span class="num">﴿${ar(e.end)}﴾</span> `:" ")).join("");wEls=[...mush.querySelectorAll(".w")]}
+ wEls.forEach((el,i)=>{const c="w "+((r&&r.st[i])||"pend");if(el.className!==c)el.className=c});
+ const n=E.length,cu=r?r.st.indexOf("cur"):-1,e=r?(cu>=0?cu:r.st.reduce((a,x,i)=>x!="pend"&&x!="skip"?i+1:a,0)):0;
+ $("pbar").firstElementChild.style.width=(n?Math.min(100,Math.round(100*e/n)):0)+"%"}
 function scrollCur(){const i=lastR?lastR.st.indexOf("cur"):-1;if(i<0||i==curIdx)return;curIdx=i;const c=mush.querySelectorAll(".w")[i];if(c&&c.scrollIntoView)try{c.scrollIntoView({block:"center",behavior:"smooth"})}catch(e){}}
 function reset(){done=false;spoken=partial=base="";curIdx=-1;$("live").textContent="";res.hidden=ai.hidden=true;$("aitxt").textContent="";
  if(mode=="auto"){locked=false;E=[];where.hidden=true;mushc.hidden=true;mush.innerHTML="";bsm.hidden=true;lastR=null}
@@ -192,9 +210,9 @@ function align(S,live,lead){
  let e=n;if(live){let best=1e9;e=0;if(m)for(let i=0;i<=n;i++)if(D[i][m]<=best+1e-6){best=Math.min(best,D[i][m]);e=i}}
  const stt=Array(n).fill(live?"pend":"miss"),hr=[],ex=[];let i=e,j=m;
  while(i>0||j>0){const b=B[i][j];
-  if(i>0&&j>0&&b==0){const s=P[i*(m+1)+j];stt[i-1]=s>=.72?"ok":s>=.5?"near":"bad";hr[i-1]=S[j-1];i--;j--}
+  if(i>0&&j>0&&b==0){const s=P[i*(m+1)+j];let q=s>=.72?"ok":s>=.5?"near":"bad";if(q=="ok"&&s<1&&confPair(key(E[i-1].k),key(S[j-1])))q="near";stt[i-1]=q;hr[i-1]=S[j-1];i--;j--}
   else if(i>0&&(j==0||b==1)){stt[i-1]=lead&&j==0?"skip":"miss";i--}
-  else{ex.push({w:S[j-1]});j--}}
+  else{if(!((j>1&&sim(S[j-1],S[j-2])>=.85)||(j<m&&sim(S[j-1],S[j])>=.85)))ex.push({w:S[j-1]});j--}}
  if(live&&e<n)stt[e]="cur";
  return{st:stt,hr,ex:ex.reverse(),e}}
 const BS=["بسم","الله","الرحمن","الرحيم"];
@@ -212,15 +230,21 @@ function detect(S){const top=cands(S);res.hidden=false;ai.hidden=true;
  return top}
 
 /* ===== الوضع التلقائي ===== */
-function lockOn(s,a){locked=true;ss.value=s;fill();sf.value=a;st.value=Math.min(Q[s].length,a+4);build();bsm.hidden=true;mushc.hidden=false;where.hidden=false;$("wtxt").innerHTML=`📖 <b>سورة ${N_[s]}</b> — من الآية ${ar(a)}`;res.hidden=true;curIdx=-1}
+function lockOn(s,a){locked=true;curAyah=a;ss.value=s;fill();sf.value=a;st.value=Math.min(Q[s].length,a+4);build();bsm.hidden=true;mushc.hidden=false;where.hidden=false;$("wtxt").innerHTML=`📖 <b>سورة ${N_[s]}</b> — من الآية ${ar(a)}`;res.hidden=true;curIdx=-1}
 function grow(r){if(r.e<E.length-3)return false;const c=Q[+ss.value].length;if(+st.value>=c)return false;st.value=Math.min(c,+st.value+3);build();return true}
 function tryLock(D){if(D.length<2)return false;
  for(let n=3;n<=Math.min(8,D.length);n++){const top=cands(D.slice(0,n)),a=top[0],b=top[1];
   if(a&&((a.v>=.72&&(!b||a.v-b.v>=.08))||(n>=7&&a.v>=.6))){lockOn(a.o.s,a.o.a);return true}}
  detect(D.slice(0,8));return false}
-function live(){const t=(spoken+" "+partial).trim(),S=prep(words(t));$("live").textContent=t;
- if(mode=="auto"){const D=dS(S);if(!locked&&!tryLock(D))return;let r=align(D,true,true);if(grow(r))r=align(D,true,true);render(r);scrollCur();return}
- render(align(stripB(S),true,false));scrollCur()}
+let lq=false,curAyah=-1;
+function live(){if(lq)return;lq=true;(window.requestAnimationFrame||setTimeout)(()=>{lq=false;liveNow()})}
+/* تثبيت العرض اللحظي: ما نحكمش بالخطأ على آخر كلمة قبل ما يجي بعدها كلام */
+function stabilize(r){const st=r.st;let lm=-1;st.forEach((x,i)=>{if(x=="ok"||x=="near"||x=="bad")lm=i});st.forEach((x,i)=>{if(x=="miss"&&lm-i<2)st[i]="chk";else if(x=="bad"&&i==lm)st[i]="chk"});return r}
+function trackWhere(r){const cu=r.st.indexOf("cur"),i=Math.min(E.length-1,Math.max(0,cu>=0?cu:r.e)),a=E[i]?E[i].a:0;if(a&&a!==curAyah){curAyah=a;$("wtxt").innerHTML=`📖 <b>سورة ${N_[+ss.value]}</b> — الآية ${ar(a)}`}}
+function liveNow(){const t=(spoken+" "+partial).trim(),S=prep(words(t));$("live").textContent=t;let r;
+ if(mode=="auto"){const D=dS(S);if(!locked&&!tryLock(D))return;r=align(D,true,true);if(grow(r))r=align(D,true,true);trackWhere(r)}
+ else r=align(stripB(S),true,false);
+ render(stabilize(r));scrollCur()}
 function finish(){partial="";const S=prep(words(spoken));
  if(!S.length){msg("لم أسمع شيئًا — قرّب من المايك وجرّب مرة أخرى");return}
  if(mode=="auto"){const D=dS(S);
@@ -230,19 +254,36 @@ function finish(){partial="";const S=prep(words(spoken));
  done=true;const r=align(stripB(S),false,false);render(r);report(r,S)}
 
 /* ===== التقرير ===== */
+/* ===== تحليل الأخطاء على مستوى الحروف ===== */
+const CF=[["س","ص","السين مرقّقة مهموسة، والصاد مفخّمة مُطبَقة."],["ت","ط","التاء مرقّقة، والطاء مفخّمة مُطبَقة مجهورة."],["د","ض","الدال من طرف اللسان مرقّقة، والضاد من حافة اللسان مفخّمة."],["ز","ظ","الزاي صفيرية مرقّقة، والظاء من طرف اللسان مفخّمة."],["ذ","ز","الذال لثوية من طرف اللسان بين الثنايا، والزاي صفيرية."],["ث","س","الثاء من طرف اللسان بين الثنايا، والسين صفيرية."],["ح","ه","الحاء من وسط الحلق مع احتكاك، والهاء من أقصاه."],["ع","ء","العين من وسط الحلق، والهمزة من أقصاه مع انفجار."],["ق","ك","القاف من أقصى اللسان مفخّمة مجهورة، والكاف أمامها مهموسة مرقّقة."],["غ","خ","الغين مجهورة والخاء مهموسة، كلاهما من أدنى الحلق."],["ظ","ض","الظاء من طرف اللسان مع الثنايا، والضاد من حافة اللسان."],["ذ","ظ","الذال مرقّقة والظاء مفخّمة، مخرجهما واحد."]];
+let CFS=null;
+function confPair(a,b){if(a.length!=b.length)return false;let d=-1;for(let i=0;i<a.length;i++)if(a[i]!=b[i]){if(d>=0)return false;d=i}if(d<0)return false;if(!CFS){CFS=new Set();CF.forEach(x=>{CFS.add(x[0]+x[1]);CFS.add(x[1]+x[0])})}return CFS.has(a[d]+b[d])}
+function cdiff(a,b){const m=a.length,n=b.length,D=[];for(let i=0;i<=m;i++){D.push(new Uint8Array(n+1));D[i][0]=i}for(let j=0;j<=n;j++)D[0][j]=j;
+ for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)D[i][j]=Math.min(D[i-1][j]+1,D[i][j-1]+1,D[i-1][j-1]+(a[i-1]==b[j-1]?0:1));
+ const ops=[];let i=m,j=n;while(i>0||j>0){if(i>0&&j>0&&D[i][j]==D[i-1][j-1]+(a[i-1]==b[j-1]?0:1)){if(a[i-1]!=b[j-1])ops.push({t:"s",a:a[i-1],b:b[j-1]});i--;j--}else if(i>0&&D[i][j]==D[i-1][j]+1){ops.push({t:"d",a:a[i-1]});i--}else{ops.push({t:"i",b:b[j-1]});j--}}return ops.reverse()}
+function cfHint(exp,heard){const ops=cdiff(exp,heard);if(!ops.length||ops.length>2)return null;const parts=[],cfs=[];
+ ops.forEach(o=>{if(o.t=="s"){const p=CF.find(x=>(x[0]==o.a&&x[1]==o.b)||(x[1]==o.a&&x[0]==o.b));parts.push(`نُطق «${o.b}» بدل «${o.a}»`+(p?` — ${p[2]}`:""));cfs.push(o.a+"→"+o.b)}else if(o.t=="d"){parts.push(`سقط حرف «${o.a}»`);cfs.push("−"+o.a)}else{parts.push(`زاد حرف «${o.b}»`);cfs.push("+"+o.b)}});
+ return{txt:parts.join("؛ "),cf:cfs}}
+let t0=0,t1=0;
 function report(r,S){
  const c={ok:0,near:0,bad:0,miss:0};r.st.forEach(x=>{if(c[x]!=null)c[x]++});const n=c.ok+c.near+c.bad+c.miss;
  if(!n){msg("لم أتمكن من مطابقة القراءة");return}
- const pct=Math.round(100*(c.ok+.5*c.near)/n);let li="";const lines=[];
+ const pct=Math.round(100*(c.ok+.5*c.near)/n);let li="";const lines=[],cfm={};
  const rn=i=>E[i].r.length?E[i].r.map(x=>TJ[x][0]).join("، "):"";
  const tjn=i=>{const rr=E[i].r;return rr.length?`<li class="tjh">في «${esc(nz(E[i].w))}» ${rr.map(x=>`<b>${TJ[x][0]}</b>: ${TJ[x][2]}`).join(" — ")}</li>`:""};
  E.forEach((e,i)=>{const s=r.st[i],p=nz(e.w),rr=rn(i),ex=rr?` [أحكام: ${rr}]`:"";
-  if(s=="bad"){li+=`<li class="er">قلتَ «${esc(r.hr[i])}» بدل <span class="q">${e.w}</span></li>`+tjn(i);lines.push(`قال «${r.hr[i]}» بدل «${p}»${ex}`)}
+  if(s=="bad"){const h=cfHint(key(e.k),key(r.hr[i]));if(h)cfm[i]=h.cf;li+=`<li class="er">قلتَ «${esc(r.hr[i])}» بدل <span class="q">${e.w}</span></li>`+(h?`<li class="tjh" style="list-style:'🔤 '">${esc(h.txt)}</li>`:"")+tjn(i);lines.push(`قال «${r.hr[i]}» بدل «${p}»${h?" ("+h.txt+")":""}${ex}`)}
   else if(s=="miss"){li+=`<li class="er">نسيتَ <span class="q">${e.w}</span></li>`+tjn(i);lines.push(`نسي «${p}»${ex}`)}
-  else if(s=="near"){li+=`<li>نطق غير واضح: <span class="q">${e.w}</span> (سُمعت «${esc(r.hr[i])}»)</li>`+tjn(i);lines.push(`نطق قريب غير واضح: «${p}» سُمعت «${r.hr[i]}»${ex}`)}});
+  else if(s=="near"){const h=cfHint(key(e.k),key(r.hr[i]));if(h)cfm[i]=h.cf;li+=`<li>نطق غير واضح: <span class="q">${e.w}</span> (سُمعت «${esc(r.hr[i])}»)</li>`+(h?`<li class="tjh" style="list-style:'🔤 '">${esc(h.txt)}</li>`:"")+tjn(i);lines.push(`نطق قريب غير واضح: «${p}» سُمعت «${r.hr[i]}»${ex}`)}});
  r.ex.forEach(x=>{li+=`<li class="er">كلمة زائدة: «${esc(x.w)}»</li>`;lines.push(`زاد «${x.w}»`)});
- recordSession(r,c,pct);
- res.hidden=false;res.innerHTML=`<div class="score"><b>${ar(pct)}٪</b><span>${pct>=90?"ما شاء الله، تلاوة ممتازة":pct>=70?"جيد، راجع الكلمات الملوّنة":"أعد المحاولة بتمهّل"}</span></div><div class="pills"><span class="p1">صحيحة ${ar(c.ok)}</span><span class="p2">قريبة ${ar(c.near)}</span><span class="p3">خاطئة ${ar(c.bad)}</span><span class="p4">منسية ${ar(c.miss)}</span></div><ul>${li||"<li>لا أخطاء 🎉</li>"}</ul>`;
+ recordSession(r,c,pct,cfm);
+ const ay={};E.forEach((e,i)=>{const q=r.st[i];if(q=="skip"||q=="pend"||q=="cur")return;const o=ay[e.a]=ay[e.a]||{n:0,g:0};o.n++;o.g+=q=="ok"?1:q=="near"?.5:0});
+ const ak=Object.keys(ay),ayH=ak.length>1?`<div class="pills">${ak.map(k=>{const v=Math.round(100*ay[k].g/ay[k].n);return`<span class="${v>=90?"p1":v>=70?"p2":"p3"}">آية ${ar(k)} · ${ar(v)}٪</span>`}).join("")}</div>`:"";
+ const dur=(t0?((t1>t0?t1:Date.now())-t0)/60000:0),wpm=dur>=.1&&S.length>=5?Math.round(S.length/dur):0;
+ const paceH=wpm?`<div style="color:var(--mute);font-size:14px">⏱️ سرعتك تقريبًا ${ar(wpm)} كلمة/دقيقة — ${wpm<=110?"إيقاع هادئ (ترتيل)":wpm<=150?"إيقاع متوسط":"إيقاع سريع (حَدْر)"} <small>(تقديري، ويشمل أي صمت في البداية)</small></div>`:"";
+ t0=t1=0;
+ res.hidden=false;res.innerHTML=`<div class="score"><b>${ar(pct)}٪</b><span>${pct>=90?"ما شاء الله، تلاوة ممتازة":pct>=70?"جيد، راجع الكلمات الملوّنة":"أعد المحاولة بتمهّل"}</span></div><div class="pills"><span class="p1">صحيحة ${ar(c.ok)}</span><span class="p2">قريبة ${ar(c.near)}</span><span class="p3">خاطئة ${ar(c.bad)}</span><span class="p4">منسية ${ar(c.miss)}</span></div>${ayH}${paceH}<ul>${li||"<li>لا أخطاء 🎉</li>"}</ul>`;
+ {const sb=res.querySelector(".score b");if(sb&&!(window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches)){const b0=performance.now(),f=t=>{const k=Math.min(1,(t-b0)/700);sb.textContent=ar(Math.round(pct*(1-Math.pow(1-k,3))))+"٪";if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)}}
  last={exp:E.filter((e,i)=>r.st[i]!="skip").map(e=>nz(e.w)).join(" "),heard:S.join(" "),lines,ref:`سورة ${N_[+ss.value]} من الآية ${sf.value} إلى ${st.value}`};
  showAI();msg("تم التحليل — اضغط المايك لمحاولة جديدة")}
 
@@ -275,21 +316,21 @@ async function sendChat(){const q=$("cq").value.trim();if(!q)return;$("cq").valu
 
 /* ===== المعلّم: سجل الجلسات وتحليل الأنماط ===== */
 const hist_=()=>{try{return JSON.parse(ls.get("tilawa_hist")||"[]")}catch(e){return[]}};
-function recordSession(r,c,pct){try{const e=[];E.forEach((w,i)=>{const k=r.st[i];if(k=="bad"||k=="miss"||k=="near")e.push({w:nz(w.w),s:+ss.value,a:w.a,r:w.r,k})});
+function recordSession(r,c,pct,cfm){try{const e=[];E.forEach((w,i)=>{const k=r.st[i];if(k=="bad"||k=="miss"||k=="near")e.push({w:nz(w.w),s:+ss.value,a:w.a,r:w.r,k,cf:(cfm&&cfm[i])||[]})});
  const H=hist_();H.push({t:Date.now(),s:+ss.value,f:E.length?E[0].a:0,p:pct,ok:c.ok,nr:c.near,bd:c.bad,ms:c.miss,e:e.slice(0,40)});ls.set("tilawa_hist",JSON.stringify(H.slice(-200)))}catch(x){}}
-function coachStats(){const H=hist_(),W={},R={};H.forEach(h=>h.e.forEach(x=>{if(x.k=="near")return;const k=x.s+":"+x.a+":"+x.w;(W[k]=W[k]||Object.assign({n:0},x)).n++;(x.r||[]).forEach(q=>R[q]=(R[q]||0)+1)}));
- return{H,W:Object.values(W).sort((a,b)=>b.n-a.n),R:Object.entries(R).sort((a,b)=>b[1]-a[1])}}
-function renderCoach(){const{H,W,R}=coachStats();const box=$("cstats");
+function coachStats(){const H=hist_(),W={},R={},C={};H.forEach(h=>h.e.forEach(x=>{(x.cf||[]).forEach(q=>C[q]=(C[q]||0)+1);if(x.k=="near")return;const k=x.s+":"+x.a+":"+x.w;(W[k]=W[k]||Object.assign({n:0},x)).n++;(x.r||[]).forEach(q=>R[q]=(R[q]||0)+1)}));
+ return{H,W:Object.values(W).sort((a,b)=>b.n-a.n),R:Object.entries(R).sort((a,b)=>b[1]-a[1]),C:Object.entries(C).sort((a,b)=>b[1]-a[1])}}
+function renderCoach(){const{H,W,R,C}=coachStats();const box=$("cstats");
  if(!H.length){box.innerHTML="<p>لسه مفيش جلسات. اقرأ في «تلقائي» أو «تسميع» وهيتسجّل تقدّمك هنا، والمعلّم يحلّل أنماط أخطائك ويقترح لك خطة.</p>";return}
  const last=H.slice(-10),avg=Math.round(H.reduce((a,h)=>a+h.p,0)/H.length),avgL=Math.round(last.reduce((a,h)=>a+h.p,0)/last.length);
  box.innerHTML=`<div class="kp"><div><b>${ar(H.length)}</b>جلسة</div><div><b>${ar(avg)}٪</b>المتوسط</div><div><b>${ar(avgL)}٪</b>آخر ${ar(last.length)}</div></div>
  <div>تطوّر آخر الجلسات</div><div class="bars">${last.map(h=>`<i class="${h.p<70?"lo":""}" style="height:${Math.max(6,(h.p-50)*2)}%" title="${h.p}٪"></i>`).join("")}</div>
  <div><b>أكثر الكلمات تعثّرًا</b></div>${W.length?W.slice(0,8).map(x=>`<div class="wk"><span><span class="q">${Q[x.s][x.a-1].split(" ").find(t=>nz(t)==x.w)||x.w}</span> — ${N_[x.s]} : ${ar(x.a)} <small>(${ar(x.n)}×)</small></span><button class="btn sec" data-drill="${x.s}:${x.a}">تدرّب</button></div>`).join(""):"<p>لا أخطاء متكررة 🎉</p>"}
- ${R.length?`<div style="margin-top:8px"><b>أحكام التجويد المرتبطة بأخطائك</b></div><div class="pills">${R.slice(0,5).map(([k,n])=>`<span class="p2">${TJ[k][0]} ×${ar(n)}</span>`).join("")}</div>`:""}`}
+ ${C.length?`<div style="margin-top:8px"><b>حروف بتخلط بينها</b></div><div class="pills">${C.slice(0,6).map(([k,n])=>`<span class="p3">${k} ×${ar(n)}</span>`).join("")}</div>`:""}${R.length?`<div style="margin-top:8px"><b>أحكام التجويد المرتبطة بأخطائك</b></div><div class="pills">${R.slice(0,5).map(([k,n])=>`<span class="p2">${TJ[k][0]} ×${ar(n)}</span>`).join("")}</div>`:""}`}
 $("cstats").onclick=e=>{const b=e.target.closest("button[data-drill]");if(!b)return;const[s,a]=b.dataset.drill.split(":").map(Number);setMode("check");ss.value=s;fill();sf.value=a;st.value=a;reset();msg("تدرّب على هذه الآية: اضغط المايك وكرّرها")};
 $("cclear").onclick=()=>{if(confirm("مسح كل سجل الجلسات؟")){ls.set("tilawa_hist","[]");renderCoach();$("coachtxt").textContent=""}};
-$("cplan").onclick=async()=>{const{H,W,R}=coachStats(),o=$("coachtxt");if(!H.length){o.textContent="سجّل بعض الجلسات أولًا.";return}
- const last=H.slice(-10),d=`عدد الجلسات: ${H.length}، متوسط آخر ${last.length}: ${Math.round(last.reduce((a,h)=>a+h.p,0)/last.length)}٪، الدرجات الأخيرة: ${last.map(h=>h.p).join("، ")}\nأكثر الكلمات تعثّرًا:\n${W.slice(0,10).map(x=>`- «${x.w}» (${N_[x.s]}: ${x.a}) ${x.n} مرات، نوع الخطأ ${x.k=="miss"?"نسيان":"إبدال"}${x.r&&x.r.length?"، حكم: "+x.r.map(q=>TJ[q][0]).join("/"):""} — نص الآية: ${Q[x.s][x.a-1]}`).join("\n")||"لا شيء"}\nأحكام تتكرر مع الأخطاء: ${R.slice(0,5).map(([k,n])=>TJ[k][0]+" ×"+n).join("، ")||"لا شيء"}`;
+$("cplan").onclick=async()=>{const{H,W,R,C}=coachStats(),o=$("coachtxt");if(!H.length){o.textContent="سجّل بعض الجلسات أولًا.";return}
+ const last=H.slice(-10),d=`عدد الجلسات: ${H.length}، متوسط آخر ${last.length}: ${Math.round(last.reduce((a,h)=>a+h.p,0)/last.length)}٪، الدرجات الأخيرة: ${last.map(h=>h.p).join("، ")}\nأكثر الكلمات تعثّرًا:\n${W.slice(0,10).map(x=>`- «${x.w}» (${N_[x.s]}: ${x.a}) ${x.n} مرات، نوع الخطأ ${x.k=="miss"?"نسيان":"إبدال"}${x.r&&x.r.length?"، حكم: "+x.r.map(q=>TJ[q][0]).join("/"):""} — نص الآية: ${Q[x.s][x.a-1]}`).join("\n")||"لا شيء"}\nأحكام تتكرر مع الأخطاء: ${R.slice(0,5).map(([k,n])=>TJ[k][0]+" ×"+n).join("، ")||"لا شيء"}\nحروف يخلط بينها (المطلوب→المنطوق): ${C.slice(0,6).map(([k,n])=>k+" ×"+n).join("، ")||"لا شيء"}`;
  o.textContent="…";try{o.textContent=await callLLM(SYS,[{r:"user",c:`أنت معلّم قرآن يتابع تقدّم طالب. هذه بيانات جلساته:\n${d}\nاكتب: (١) تشخيصًا مختصرًا لنمط أخطائه وهل هو يتحسّن، (٢) خطة مراجعة لسبعة أيام مختصرة (كل يوم: ماذا يقرأ وكم مرة وماذا يركّز عليه)، (٣) تمرينين عمليين على أصعب حكم تجويدي عنده، (٤) جملة تشجيع. التحليل مبني على نص مفهوم بالتعرّف على الكلام فلا تجزم. اختصر.`}],t=>o.textContent=t)}catch(e){o.textContent="تعذّر إنشاء الخطة: "+e.message}};
 /* ===== التسجيل: أذونات + محرّكات ===== */
 const IN_CLAUDE=!!(window.claude&&claude.use);
@@ -323,7 +364,7 @@ async function startWhisper(){mstream=await navigator.mediaDevices.getUserMedia(
   try{lastBlob=new Blob(chunks,{type:wMime});spoken=await whisper(lastBlob);partial="";finish()}catch(e){msg("تعذّر التفريغ ("+e.message+") — راجع المفتاح من الإعدادات")}wakeOff()};
  mr.start(1000);running=true;ui();
  wTimer=setInterval(async()=>{if(wBusy||!running||chunks.length<3)return;wBusy=true;try{const t=await whisper(new Blob(chunks,{type:wMime}));if(running){spoken=t;partial="";live()}}catch(e){}wBusy=false},4500)}
-function stopAll(){stopReq=true;if(ac){stopLocal();return}if(mr&&mr.state=="recording"){mr.stop();return}dict?dict.stop():rec&&rec.stop()}
+function stopAll(){stopReq=true;t1=Date.now();if(ac){stopLocal();return}if(mr&&mr.state=="recording"){mr.stop();return}dict?dict.stop():rec&&rec.stop()}
 /* ===== النموذج القرآني المحلي (Tarteel Whisper عبر transformers.js) ===== */
 let LASR=null,Lload=null,ac=null,sp=null,srcN=null,zero=null,cur=[],all=[],curN=0,sr0=16000,speech=false,sil=0,segId=0,qChain=Promise.resolve(),qBusy=0,pTimer=null;
 async function loadLocal(){if(LASR)return LASR;if(!Lload)Lload=(async()=>{const T=await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3/+esm");T.env.allowLocalModels=false;
@@ -344,13 +385,14 @@ async function startLocal(){
  sr0=ac.sampleRate;cur=[];all=[];curN=0;speech=false;sil=0;segId=0;lastAudio=null;
  srcN=ac.createMediaStreamSource(mstream);sp=ac.createScriptProcessor(4096,1,1);zero=ac.createGain();zero.gain.value=0;
  sp.onaudioprocess=e=>{const d=new Float32Array(e.inputBuffer.getChannelData(0));let s=0;for(let i=0;i<d.length;i++)s+=d[i]*d[i];const rms=Math.sqrt(s/d.length),dur=d.length/sr0;all.push(d);cur.push(d);curN+=d.length;
+  $("mic").style.setProperty("--lv",Math.min(1,rms*10).toFixed(2));
   if(rms>.012){speech=true;sil=0}else if(speech)sil+=dur;
   if(speech&&((sil>=.8&&curN/sr0>=1.2)||curN/sr0>=14))flushSeg()};
  srcN.connect(sp);sp.connect(zero);zero.connect(ac.destination);
- running=true;ui();msg("أسمعك… (أول مرة بيتحمّل النموذج في الخلفية)");
+ running=true;ui();$("mic").classList.add("lv");msg("أسمعك… (أول مرة بيتحمّل النموذج في الخلفية)");
  loadLocal().catch(e=>{msg("تعذّر تحميل النموذج القرآني ("+e.message+") — جرّب محرّك المتصفح من الإعدادات")});
  pTimer=setInterval(partialTick,2500)}
-function stopLocal(){clearInterval(pTimer);try{sp.disconnect();srcN.disconnect();zero.disconnect()}catch(e){}mstream.getTracks().forEach(t=>t.stop());const rate=sr0;ac.close().catch(()=>{});
+function stopLocal(){clearInterval(pTimer);$("mic").classList.remove("lv");$("mic").style.removeProperty("--lv");try{sp.disconnect();srcN.disconnect();zero.disconnect()}catch(e){}mstream.getTracks().forEach(t=>t.stop());const rate=sr0;ac.close().catch(()=>{});
  lastAudio=resample(cat(all),rate,16000);flushSeg();running=false;ui();msg("جارٍ التفريغ…");ac=null;
  qChain.then(async()=>{try{await loadLocal()}catch(e){msg("تعذّر تحميل النموذج القرآني — راجع الإنترنت أو غيّر المحرّك من الإعدادات");wakeOff();return}partial="";finish();showAI();wakeOff()})}
 /* ===== تحليل التجويد من الصوت (Gemini) ===== */
@@ -371,14 +413,14 @@ $("boost").onclick=async()=>{CFG.asr="local";saveCfg();engLabel();boostVis();msg
  try{await loadLocal();msg("النموذج القرآني جاهز — اضغط المايك")}catch(e){CFG.asr="browser";saveCfg();engLabel();boostVis();msg("تعذّر تحميل النموذج ("+e.message+") — رجعنا لمحرّك المتصفح")}};
 $("mic").onclick=async()=>{
  if(running){stopAll();return}
- reset();stopReq=false;base="";lastAudio=lastBlob=null;$("tjtxt").textContent="";
+ reset();stopReq=false;base="";lastAudio=lastBlob=null;$("tjtxt").textContent="";t0=Date.now();t1=0;
  if(!IN_CLAUDE&&(await micState())!="granted"){const ok=await perms();if(!ok){msg("المايك غير مسموح — فعّل الإذن من إعدادات المتصفح أو اكتب ما قرأته بالأسفل");return}}
  wakeOn();
  if(useLocal()&&!dict){try{await startLocal()}catch(e){msg("تعذّر تشغيل المايك: "+e.message);wakeOff()}return}
  if(useWhisper()&&!dict){try{await startWhisper()}catch(e){msg("تعذّر تشغيل المايك: "+e.message);wakeOff()}return}
  if(dict)dict.start({language:"ar"}).catch(e=>{if(!["stopped","dismissed"].includes(e.code))msg("الإملاء الصوتي غير متاح الآن — اكتب ما قرأته بالأسفل")});
  else if(!webkit()){msg("المتصفح لا يدعم التعرّف على الصوت — فعّل محرّك OpenAI من الإعدادات، أو اكتب ما قرأته بالأسفل");wakeOff()}};
-$("go").onclick=()=>{const v=$("typed").value;reset();spoken=v;finish()};
+$("go").onclick=()=>{const v=$("typed").value;reset();t0=0;spoken=v;finish()};
 $("askai").onclick=askAI;
 res.onclick=e=>{const b=e.target.closest("button[data-s]");if(!b)return;lockOn(+b.dataset.s,+b.dataset.a);if(!running&&spoken.trim())finish();else live()};
 $("unlock").onclick=()=>{locked=false;where.hidden=true;mushc.hidden=true;E=[];curIdx=-1;if(spoken.trim()){live()}};
@@ -414,6 +456,7 @@ ss.value=sv.s||0;fill();if(sv.f){sf.value=sv.f;st.value=sv.t}hide.checked=!!sv.h
  if(dict){dict.onPartial(({text})=>{partial=text;live()});dict.onFinal(({text})=>{spoken+=text;partial="";live()});
   dict.onState(({state,reason})=>{if(state!="idle"){running=true;ui();return}
    if(running){running=false;ui();wakeOff();if(["not_granted","unavailable","rate_limited","upstream_error"].includes(reason)&&!spoken.trim())msg("تعذّر الإملاء الصوتي ("+reason+") — اكتب ما قرأته بالأسفل");else finish()}})}}catch(e){}})();
+setTimeout(()=>{try{idx()}catch(e){}},1500);
 if("serviceWorker"in navigator&&location.protocol.startsWith("http"))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 </script>
 </body>
