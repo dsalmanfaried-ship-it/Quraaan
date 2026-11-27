@@ -81,18 +81,18 @@ dialog label{display:block;margin:10px 0 2px;font-size:14px;color:var(--mute)}di
 <section class="card" id="opts"><label><input type="checkbox" id="hide"> وضع الحفظ (إخفاء الكلمات حتى تُقرأ)</label><label><input type="checkbox" id="tjc" checked> ألوان التجويد</label></section>
 <section class="card where" id="where" hidden><span id="wtxt"></span><button class="btn sec" id="unlock" style="margin:0">إعادة التحديد</button></section>
 <section class="card" id="mushc" hidden><div id="bsm" class="bsm" hidden></div><div id="mush" class="mush"></div><div id="legend"></div></section>
-<section class="card mic"><button id="mic" aria-label="تسجيل">🎙️</button><div id="stat" aria-live="polite">اضغط على المايك وابدأ القراءة — هتعرّف على الآية تلقائيًا</div><div id="live" class="live"></div>
+<section class="card mic"><button id="mic" aria-label="تسجيل">🎙️</button><div id="stat" aria-live="polite">اضغط على المايك وابدأ القراءة — هتعرّف على الآية تلقائيًا</div><div id="live" class="live"></div><button class="btn sec" id="boost" hidden>⚡ فعّل النموذج القرآني (أدق + تسجيل صوتي لتحليل التجويد)</button>
 <details><summary>أو اكتب ما قرأته</summary><textarea id="typed" placeholder="اكتب هنا ما قرأته"></textarea><button class="btn" id="go">حلّل</button></details></section>
 <section class="card" id="res" hidden></section>
-<section class="card" id="ai" hidden><button class="btn" id="askai" style="margin:0">✨ تحليل وتوجيه من الذكاء الاصطناعي</button><div id="aitxt"></div></section>
+<section class="card" id="ai" hidden><button class="btn" id="askai" style="margin:0" hidden>✨ تحليل وتوجيه من الذكاء الاصطناعي</button><div id="aitxt"></div><button class="btn" id="tjai" hidden>🎧 تحليل التجويد من الصوت (Gemini)</button><small id="tjnote" style="display:block;color:var(--mute)" hidden>يُرسَل تسجيلك الصوتي إلى Google للتحليل، والنتيجة تقريبية وليست حكمًا نهائيًا.</small><div id="tjtxt" style="white-space:pre-wrap;margin-top:8px"></div></section>
 <section class="card" id="chatc"><div id="cm"><div class="m a">اسألني عن أي آية: معناها، تفسيرها الميسّر، أحكام التجويد فيها، أو ابحث بجزء من نصها. معي نص المصحف كاملًا وبقرأ منه قبل ما أجاوب.</div></div><div id="crow"><textarea id="cq" placeholder="اكتب سؤالك…"></textarea><button class="btn" id="csend" style="margin:0">إرسال</button></div><small id="cnote" style="color:var(--mute)"></small></section>
 <footer>التحليل مبنيّ على النص الذي يفهمه نظام التعرّف على الكلام، فلا يكشف دقائق التجويد الصوتية؛ وألوان التجويد مولَّدة آليًّا من النص وقد تخطئ في بعض المواضع؛ ولا يغني التطبيق عن معلّم مجاز.<br>نص المصحف: <a href="https://tanzil.net" target="_blank" rel="noopener">مشروع تنزيل (Tanzil)</a> — الرسم العثماني.</footer>
 </div>
 <dialog id="cfg"><h3 style="margin:0;color:var(--acc)">الإعدادات</h3>
-<label>محرّك التعرّف على الصوت</label><select id="c_asr"><option value="browser">المتصفح (مجاني)</option><option value="openai">OpenAI (أدق، ويشتغل على الآيفون)</option></select>
+<label>محرّك التعرّف على الصوت</label><select id="c_asr"><option value="browser">المتصفح (مجاني)</option><option value="local">نموذج قرآني محلي — Tarteel Whisper (مجاني، ~١٠٠ ميجا مرة واحدة)</option><option value="openai">OpenAI (أدق، ويشتغل على الآيفون)</option></select><label>النموذج المحلي (Hugging Face)</label><input type="text" id="c_lm" dir="ltr"><small>يعمل على الجهاز بدون إنترنت بعد أول تحميل، ويحفظ تسجيلك محليًا لتحليل التجويد.</small>
 <label>مفتاح OpenAI</label><input type="password" id="c_ok" placeholder="sk-…" autocomplete="off"><label>نموذج التفريغ</label><input type="text" id="c_om" dir="ltr">
 <label>الذكاء الاصطناعي للتحليل والمساعد</label><select id="c_llm"><option value="auto">تلقائي (Claude لو متاح)</option><option value="openai">OpenAI</option><option value="anthropic">Anthropic (Claude)</option><option value="gemini">Google Gemini</option></select>
-<label>نموذج OpenAI</label><input type="text" id="c_lo" dir="ltr"><label>مفتاح Anthropic</label><input type="password" id="c_ak" autocomplete="off"><label>نموذج Claude</label><input type="text" id="c_la" dir="ltr"><label>مفتاح Gemini</label><input type="password" id="c_gk" autocomplete="off"><label>نموذج Gemini</label><input type="text" id="c_lg" dir="ltr">
+<label>نموذج OpenAI</label><input type="text" id="c_lo" dir="ltr"><label>مفتاح Anthropic</label><input type="password" id="c_ak" autocomplete="off"><label>نموذج Claude</label><input type="text" id="c_la" dir="ltr"><label>مفتاح Gemini</label><input type="password" id="c_gk" autocomplete="off"><label>نموذج Gemini (نص)</label><input type="text" id="c_lg" dir="ltr"><label>نموذج Gemini (صوت)</label><input type="text" id="c_lga" dir="ltr">
 <small>المفاتيح تُحفظ على جهازك فقط وتُرسل مباشرة لمزوّد الخدمة الذي تختاره. استخدم مفتاحًا بحدّ إنفاق.</small>
 <div style="display:flex;gap:8px;margin-top:12px"><button class="btn" id="c_save">حفظ</button><button class="btn sec" id="c_close">إغلاق</button></div></dialog>
 <div class="gate" id="gate" hidden><div><h2>أهلًا بك في تِلاوة</h2><p>عشان التطبيق يشتغل مرة واحدة من غير ما يسألك كل شوية:</p><ul><li>🎙️ المايك لسماع تلاوتك</li><li>💾 تخزين دائم لحفظ إعداداتك</li><li>📱 إبقاء الشاشة شغالة أثناء التلاوة</li></ul><button class="btn" id="gok">ابدأ وامنح الأذونات</button> <button class="btn sec" id="gskip">لاحقًا</button><p id="gmsg" style="color:var(--bad)"></p></div></div>
@@ -105,7 +105,7 @@ const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k
 const ss=$("ss"),sf=$("sf"),st=$("st"),hide=$("hide"),tjc=$("tjc"),mush=$("mush"),mushc=$("mushc"),res=$("res"),ai=$("ai"),stat=$("stat"),bsm=$("bsm"),where=$("where"),legend=$("legend");
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const ar=n=>String(n).replace(/\d/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
-let CFG={asr:"browser",llm:"auto",okey:"",akey:"",gkey:"",om:"gpt-4o-transcribe",lo:"gpt-4o-mini",la:"claude-sonnet-5-5",lg:"gemini-2.0-flash",tj:true};
+let CFG={asr:"browser",llm:"auto",okey:"",akey:"",gkey:"",om:"gpt-4o-transcribe",lo:"gpt-4o-mini",la:"claude-sonnet-5-5",lg:"gemini-2.0-flash",lga:"gemini-2.5-flash",lm:"Mustanad/whisper-base-ar-quran-onnx",tj:true};
 try{Object.assign(CFG,JSON.parse(ls.get("tilawa_cfg")||"{}"))}catch(e){}
 const saveCfg=()=>ls.set("tilawa_cfg",JSON.stringify(CFG));
 
@@ -234,7 +234,7 @@ function report(r,S){
  r.ex.forEach(x=>{li+=`<li class="er">كلمة زائدة: «${esc(x.w)}»</li>`;lines.push(`زاد «${x.w}»`)});
  res.hidden=false;res.innerHTML=`<div class="score"><b>${ar(pct)}٪</b><span>${pct>=90?"ما شاء الله، تلاوة ممتازة":pct>=70?"جيد، راجع الكلمات الملوّنة":"أعد المحاولة بتمهّل"}</span></div><div class="pills"><span class="p1">صحيحة ${ar(c.ok)}</span><span class="p2">قريبة ${ar(c.near)}</span><span class="p3">خاطئة ${ar(c.bad)}</span><span class="p4">منسية ${ar(c.miss)}</span></div><ul>${li||"<li>لا أخطاء 🎉</li>"}</ul>`;
  last={exp:E.filter((e,i)=>r.st[i]!="skip").map(e=>nz(e.w)).join(" "),heard:S.join(" "),lines,ref:`سورة ${N_[+ss.value]} من الآية ${sf.value} إلى ${st.value}`};
- ai.hidden=!aiOK();msg("تم التحليل — اضغط المايك لمحاولة جديدة")}
+ showAI();msg("تم التحليل — اضغط المايك لمحاولة جديدة")}
 
 /* ===== الذكاء الاصطناعي ===== */
 const aiOK=()=>CFG.llm=="openai"?!!CFG.okey:CFG.llm=="anthropic"?!!CFG.akey:CFG.llm=="gemini"?!!CFG.gkey:!!(smp||CFG.okey||CFG.akey||CFG.gkey);
@@ -272,8 +272,10 @@ async function perms(){let micOK=true;
  try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}
  return micOK}
 async function micState(){try{const p=await navigator.permissions.query({name:"microphone"});return p.state}catch(e){return"unknown"}}
-function ui(){$("mic").classList.toggle("on",running);$("mic").textContent=running?"⏹":"🎙️";if(running)msg(mode=="auto"&&!locked?"أسمعك… اقرأ وهتعرّف على الآية تلقائيًا":"أسمعك… اضغط للإيقاف والتحليل")}
-const useWhisper=()=>CFG.asr=="openai"&&!!CFG.okey;
+function showAI(){$("askai").hidden=!aiOK();$("tjai").hidden=$("tjnote").hidden=!tjOK();ai.hidden=!(aiOK()||tjOK())}
+function ui(){boostVis();$("mic").classList.toggle("on",running);$("mic").textContent=running?"⏹":"🎙️";if(running)msg(mode=="auto"&&!locked?"أسمعك… اقرأ وهتعرّف على الآية تلقائيًا":"أسمعك… اضغط للإيقاف والتحليل")}
+const useWhisper=()=>CFG.asr=="openai"&&!!CFG.okey,useLocal=()=>CFG.asr=="local"&&!IN_CLAUDE&&window.AudioContext!==undefined;
+let lastAudio=null,lastBlob=null;const tjOK=()=>!!(CFG.gkey&&(lastAudio||lastBlob));
 function webkit(){const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R)return false;rec=new R();rec.lang="ar-SA";rec.continuous=true;rec.interimResults=true;
  rec.onresult=ev=>{let f="",p="";for(let i=0;i<ev.results.length;i++){const r=ev.results[i];if(r.isFinal)f+=" "+r[0].transcript;else p+=" "+r[0].transcript}spoken=(base+" "+f).trim();partial=p;live()};
  rec.onstart=()=>{running=true;ui()};
@@ -290,15 +292,61 @@ async function startWhisper(){mstream=await navigator.mediaDevices.getUserMedia(
  mr=new MediaRecorder(mstream,m?{mimeType:m}:{});wMime=mr.mimeType||m||"audio/webm";chunks=[];
  mr.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
  mr.onstop=async()=>{clearInterval(wTimer);mstream.getTracks().forEach(t=>t.stop());running=false;ui();msg("جارٍ التفريغ…");
-  try{spoken=await whisper(new Blob(chunks,{type:wMime}));partial="";finish()}catch(e){msg("تعذّر التفريغ ("+e.message+") — راجع المفتاح من الإعدادات")}wakeOff()};
+  try{lastBlob=new Blob(chunks,{type:wMime});spoken=await whisper(lastBlob);partial="";finish()}catch(e){msg("تعذّر التفريغ ("+e.message+") — راجع المفتاح من الإعدادات")}wakeOff()};
  mr.start(1000);running=true;ui();
  wTimer=setInterval(async()=>{if(wBusy||!running||chunks.length<3)return;wBusy=true;try{const t=await whisper(new Blob(chunks,{type:wMime}));if(running){spoken=t;partial="";live()}}catch(e){}wBusy=false},4500)}
-function stopAll(){stopReq=true;if(mr&&mr.state=="recording"){mr.stop();return}dict?dict.stop():rec&&rec.stop()}
+function stopAll(){stopReq=true;if(ac){stopLocal();return}if(mr&&mr.state=="recording"){mr.stop();return}dict?dict.stop():rec&&rec.stop()}
+/* ===== النموذج القرآني المحلي (Tarteel Whisper عبر transformers.js) ===== */
+let LASR=null,Lload=null,ac=null,sp=null,srcN=null,zero=null,cur=[],all=[],curN=0,sr0=16000,speech=false,sil=0,segId=0,qChain=Promise.resolve(),qBusy=0,pTimer=null;
+async function loadLocal(){if(LASR)return LASR;if(!Lload)Lload=(async()=>{const T=await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3/+esm");T.env.allowLocalModels=false;
+ return await T.pipeline("automatic-speech-recognition",CFG.lm||"Mustanad/whisper-base-ar-quran-onnx",{dtype:"q8",device:"wasm",progress_callback:p=>{if(p.status=="progress"&&p.total>1e6)msg(`تحميل النموذج القرآني… ${Math.round(p.progress)}٪ (مرة واحدة فقط)`)}})})();
+ try{LASR=await Lload;return LASR}catch(e){Lload=null;throw e}}
+const cat=a=>{let n=0;a.forEach(x=>n+=x.length);const o=new Float32Array(n);let k=0;a.forEach(x=>{o.set(x,k);k+=x.length});return o};
+function resample(f,from,to){if(from==to)return f;const r=from/to,n=Math.floor(f.length/r),o=new Float32Array(n);for(let i=0;i<n;i++){const x=i*r,j=Math.floor(x),t=x-j;o[i]=f[j]*(1-t)+(f[j+1]??f[j])*t}return o}
+async function transcribeLocal(f){const a=await loadLocal(),o=await a(resample(f,sr0,16000));return(o&&o.text||"").trim()}
+const enqueue=fn=>{qBusy++;qChain=qChain.then(fn).catch(()=>{}).then(()=>{qBusy--})};
+function flushSeg(){const f=cat(cur);cur=[];curN=0;speech=false;sil=0;segId++;partial="";if(f.length<sr0*.5)return;
+ enqueue(async()=>{const t=await transcribeLocal(f);if(t){spoken=(spoken+" "+t).trim();live()}})}
+function partialTick(){if(!running||qBusy||curN<sr0*1.5)return;const f=cat(cur),id=segId;
+ enqueue(async()=>{const t=await transcribeLocal(f);if(running&&id==segId){partial=t;live()}})}
+async function startLocal(){
+ const AC=window.AudioContext||window.webkitAudioContext;ac=new AC();
+ mstream=await navigator.mediaDevices.getUserMedia({audio:{channelCount:1,echoCancellation:false,noiseSuppression:true,autoGainControl:true}});
+ try{await ac.resume()}catch(e){}
+ sr0=ac.sampleRate;cur=[];all=[];curN=0;speech=false;sil=0;segId=0;lastAudio=null;
+ srcN=ac.createMediaStreamSource(mstream);sp=ac.createScriptProcessor(4096,1,1);zero=ac.createGain();zero.gain.value=0;
+ sp.onaudioprocess=e=>{const d=new Float32Array(e.inputBuffer.getChannelData(0));let s=0;for(let i=0;i<d.length;i++)s+=d[i]*d[i];const rms=Math.sqrt(s/d.length),dur=d.length/sr0;all.push(d);cur.push(d);curN+=d.length;
+  if(rms>.012){speech=true;sil=0}else if(speech)sil+=dur;
+  if(speech&&((sil>=.8&&curN/sr0>=1.2)||curN/sr0>=14))flushSeg()};
+ srcN.connect(sp);sp.connect(zero);zero.connect(ac.destination);
+ running=true;ui();msg("أسمعك… (أول مرة بيتحمّل النموذج في الخلفية)");
+ loadLocal().catch(e=>{msg("تعذّر تحميل النموذج القرآني ("+e.message+") — جرّب محرّك المتصفح من الإعدادات")});
+ pTimer=setInterval(partialTick,2500)}
+function stopLocal(){clearInterval(pTimer);try{sp.disconnect();srcN.disconnect();zero.disconnect()}catch(e){}mstream.getTracks().forEach(t=>t.stop());const rate=sr0;ac.close().catch(()=>{});
+ lastAudio=resample(cat(all),rate,16000);flushSeg();running=false;ui();msg("جارٍ التفريغ…");ac=null;
+ qChain.then(async()=>{try{await loadLocal()}catch(e){msg("تعذّر تحميل النموذج القرآني — راجع الإنترنت أو غيّر المحرّك من الإعدادات");wakeOff();return}partial="";finish();showAI();wakeOff()})}
+/* ===== تحليل التجويد من الصوت (Gemini) ===== */
+function wavB64(f){const n=f.length,buf=new ArrayBuffer(44+n*2),v=new DataView(buf),w=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i))};
+ w(0,"RIFF");v.setUint32(4,36+n*2,true);w(8,"WAVE");w(12,"fmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,16000,true);v.setUint32(28,32000,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,"data");v.setUint32(40,n*2,true);
+ for(let i=0;i<n;i++){const s=Math.max(-1,Math.min(1,f[i]));v.setInt16(44+i*2,s<0?s*0x8000:s*0x7fff,true)}
+ let b="";const u=new Uint8Array(buf);for(let i=0;i<u.length;i+=0x8000)b+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(b)}
+async function audio16k(){if(lastAudio)return lastAudio;if(lastBlob){const AC=window.AudioContext||window.webkitAudioContext,c=new AC(),d=await c.decodeAudioData(await lastBlob.arrayBuffer());const f=resample(d.getChannelData(0),d.sampleRate,16000);c.close().catch(()=>{});return f}return null}
+async function tjAudio(){const o=$("tjtxt");o.textContent="🎧 جارٍ الاستماع والتحليل…";
+ try{let f=await audio16k();if(!f||f.length<16000)throw new Error("لا يوجد تسجيل كافٍ");if(f.length>16000*150)f=f.subarray(0,16000*150);
+  const rules=[...new Set(E.flatMap((e,i)=>lastR&&lastR.st[i]!="skip"?e.r:[]))].map(x=>TJ[x][0]).join("، ")||"غير محددة";
+  const p=`أنت معلّم تجويد متمكّن (رواية حفص عن عاصم). المرفق تسجيل صوتي لتلاوة ${last.ref}.\nالنص الصحيح: ${last.exp}\nما فهمه التعرّف الآلي من الكلمات: ${last.heard}\nأحكام موجودة في المقطع حسب النص: ${rules}\nاستمع للصوت فعلًا وابنِ ملاحظاتك على ما تسمعه: مقدار المدود (طبيعي/منفصل/متصل/لازم)، الغنّة، الإخفاء، الإدغام، الإقلاب، القلقلة، التفخيم والترقيق، والوقف.\nالقواعد: كل ملاحظة تذكر الكلمة والحكم وما سمعته وكيف يصحّحه؛ صنّف كل ملاحظة «مؤكد» أو «محتمل»؛ لا تختلق أخطاء لم تسمعها؛ إن كان الصوت غير واضح فاذكر ذلك؛ ابدأ بما أحسن فيه المتعلّم؛ بحد أقصى ١٠ أسطر بالعربية المبسّطة.`;
+  const j=await post(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(CFG.lga||"gemini-2.5-flash")}:generateContent?key=${encodeURIComponent(CFG.gkey)}`,{},{contents:[{role:"user",parts:[{text:p},{inline_data:{mime_type:"audio/wav",data:wavB64(f)}}]}]});
+  o.textContent=j.candidates[0].content.parts.map(x=>x.text||"").join("")}catch(e){o.textContent="تعذّر التحليل: "+e.message}}
+$("tjai").onclick=tjAudio;
+function boostVis(){$("boost").hidden=IN_CLAUDE||CFG.asr!="browser"||running}
+$("boost").onclick=async()=>{CFG.asr="local";saveCfg();engLabel();boostVis();msg("جارٍ تحميل النموذج القرآني (حوالي ١٠٠ ميجا مرة واحدة)…");
+ try{await loadLocal();msg("النموذج القرآني جاهز — اضغط المايك")}catch(e){CFG.asr="browser";saveCfg();engLabel();boostVis();msg("تعذّر تحميل النموذج ("+e.message+") — رجعنا لمحرّك المتصفح")}};
 $("mic").onclick=async()=>{
  if(running){stopAll();return}
- reset();stopReq=false;base="";
+ reset();stopReq=false;base="";lastAudio=lastBlob=null;$("tjtxt").textContent="";
  if(!IN_CLAUDE&&(await micState())!="granted"){const ok=await perms();if(!ok){msg("المايك غير مسموح — فعّل الإذن من إعدادات المتصفح أو اكتب ما قرأته بالأسفل");return}}
  wakeOn();
+ if(useLocal()&&!dict){try{await startLocal()}catch(e){msg("تعذّر تشغيل المايك: "+e.message);wakeOff()}return}
  if(useWhisper()&&!dict){try{await startWhisper()}catch(e){msg("تعذّر تشغيل المايك: "+e.message);wakeOff()}return}
  if(dict)dict.start({language:"ar"}).catch(e=>{if(!["stopped","dismissed"].includes(e.code))msg("الإملاء الصوتي غير متاح الآن — اكتب ما قرأته بالأسفل")});
  else if(!webkit()){msg("المتصفح لا يدعم التعرّف على الصوت — فعّل محرّك OpenAI من الإعدادات، أو اكتب ما قرأته بالأسفل");wakeOff()}};
@@ -319,11 +367,11 @@ function applyTj(){document.body.classList.toggle("tj-on",tjc.checked);legend.hi
 tjc.onchange=()=>{CFG.tj=tjc.checked;saveCfg();applyTj();render(lastR)};
 $("csend").onclick=sendChat;$("cq").onkeydown=e=>{if(e.key=="Enter"&&!e.shiftKey){e.preventDefault();sendChat()}};
 function refreshNote(){$("cnote").textContent=aiOK()?"":"أضف مفتاح ذكاء اصطناعي من الإعدادات ⚙️ عشان المساعد يشتغل."}
-function engLabel(){$("eng").textContent="التعرّف: "+(useWhisper()?"OpenAI":"المتصفح")+" • الذكاء الاصطناعي: "+(aiOK()?"مفعّل":"غير مفعّل")}
-const dlg=$("cfg"),F={asr:"c_asr",okey:"c_ok",om:"c_om",llm:"c_llm",lo:"c_lo",akey:"c_ak",la:"c_la",gkey:"c_gk",lg:"c_lg"};
+function engLabel(){$("eng").textContent="التعرّف: "+(useLocal()?"نموذج قرآني محلي":useWhisper()?"OpenAI":"المتصفح")+" • الذكاء الاصطناعي: "+(aiOK()?"مفعّل":"غير مفعّل")}
+const dlg=$("cfg"),F={lm:"c_lm",lga:"c_lga",asr:"c_asr",okey:"c_ok",om:"c_om",llm:"c_llm",lo:"c_lo",akey:"c_ak",la:"c_la",gkey:"c_gk",lg:"c_lg"};
 $("cfgb").onclick=()=>{Object.keys(F).forEach(k=>$(F[k]).value=CFG[k]||"");dlg.showModal?dlg.showModal():dlg.setAttribute("open","")};
 $("c_close").onclick=()=>dlg.close?dlg.close():dlg.removeAttribute("open");
-$("c_save").onclick=()=>{Object.keys(F).forEach(k=>CFG[k]=$(F[k]).value.trim());saveCfg();$("c_close").onclick();engLabel();refreshNote();if(last)ai.hidden=!aiOK()};
+$("c_save").onclick=()=>{Object.keys(F).forEach(k=>CFG[k]=$(F[k]).value.trim());saveCfg();$("c_close").onclick();engLabel();refreshNote();if(last)showAI();boostVis()};
 /* بوابة الأذونات */
 const gate=$("gate");
 async function gateInit(){if(IN_CLAUDE||ls.get("tilawa_gate"))return;if((await micState())=="granted"){ls.set("tilawa_gate","1");return}gate.hidden=false}
@@ -331,7 +379,7 @@ $("gok").onclick=async()=>{const ok=await perms();wakeOn();wakeOff();if(ok){ls.s
 $("gskip").onclick=()=>{gate.hidden=true};
 /* بدء التشغيل */
 let sv={};try{sv=JSON.parse(ls.get("tilawa")||"{}")}catch(e){}
-ss.value=sv.s||0;fill();if(sv.f){sf.value=sv.f;st.value=sv.t}hide.checked=!!sv.h;tjc.checked=CFG.tj!==false;applyTj();document.body.dataset.mode="auto";reset();engLabel();gateInit();
+ss.value=sv.s||0;fill();if(sv.f){sf.value=sv.f;st.value=sv.t}hide.checked=!!sv.h;tjc.checked=CFG.tj!==false;applyTj();document.body.dataset.mode="auto";reset();engLabel();boostVis();gateInit();
 (async()=>{try{if(!IN_CLAUDE)return;dict=await claude.use("dictation");smp=await claude.use("sample");engLabel();
  if(dict){dict.onPartial(({text})=>{partial=text;live()});dict.onFinal(({text})=>{spoken+=text;partial="";live()});
   dict.onState(({state,reason})=>{if(state!="idle"){running=true;ui();return}
